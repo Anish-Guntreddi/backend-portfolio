@@ -53,12 +53,20 @@ const CSV_COLUMNS = [
   'hash',
 ] as const;
 
-/** RFC-4180 field escaping: quote fields containing comma/quote/newline, doubling inner quotes. */
+/**
+ * Escape a CSV field. Two concerns:
+ *   - RFC-4180: quote fields containing comma/quote/newline, doubling inner quotes.
+ *   - CSV formula injection: a field beginning with `= + - @` (or a tab/CR) is interpreted as a
+ *     formula by Excel/Sheets. Since audit fields (actor/action/resource/metadata) are caller-supplied,
+ *     we neutralize that by prefixing such a value with a single quote before escaping.
+ */
 function csvField(value: string): string {
-  if (/[",\r\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
+  let v = value;
+  if (/^[=+\-@\t\r]/.test(v)) v = `'${v}`;
+  if (/[",\r\n]/.test(v)) {
+    return `"${v.replace(/"/g, '""')}"`;
   }
-  return value;
+  return v;
 }
 
 export function toCSV(rows: EventRow[]): string {

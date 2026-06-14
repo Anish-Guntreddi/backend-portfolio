@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Backend Portfolio — Anish Guntreddi</title>
+<meta name="description" content="Three infrastructure-grade backend services — a tamper-evident audit log, a feature-flag engine with deterministic rollout, and a notification-delivery system with a durable dead-letter queue. 161 tests, adversarially reviewed." />
+<meta property="og:title" content="Backend Portfolio — Infrastructure-Grade Services" />
+<meta property="og:description" content="AuditTrail · FlagForge · NotifyCore — built on one TypeScript/Fastify/Postgres spine. 161 tests, every service Docker-boots and is adversarially reviewed." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ── status bar ──────────────────────────────────────────────── -->
+<header class="statusbar" id="top">
+  <a class="brand" href="#top" aria-label="Backend Portfolio home">
+    <svg class="brand-glyph" viewBox="0 0 32 32" width="26" height="26" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="#0F172A" stroke="#1E293B"/>
+      <path d="M9 11l4 5-4 5" fill="none" stroke="#34D399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 21h7" stroke="#34D399" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+    <span class="brand-text">backend<span class="brand-dim">-portfolio</span></span>
+  </a>
+  <nav class="statusbar-nav" aria-label="Primary">
+    <a href="#services">Services</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#stack">Stack</a>
+    <a href="#process">Process</a>
+  </nav>
+  <div class="statusbar-right">
+    <span class="ops-pill" title="All verification gates green"><span class="ops-dot"></span>all systems operational</span>
+    <a class="ghbtn" href="https://github.com/Anish-Guntreddi/backend-portfolio" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12a11.5 11.5 0 0 0 7.9 10.9c.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5A11.5 11.5 0 0 0 23.5 12C23.5 5.7 18.3.5 12 .5Z"/></svg>
+      GitHub
+    </a>
+  </div>
+</header>
+
+<main>
+<!-- ── hero ────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow reveal" data-reveal>// internal-platform engineering</p>
+      <h1 class="reveal" data-reveal data-reveal-delay="1">
+        Infrastructure-grade<br>backends, built to be<br><span class="accent">depended&nbsp;on.</span>
+      </h1>
+      <p class="lede reveal" data-reveal data-reveal-delay="2">
+        Three services other engineers build on top of — each proving a distinct
+        <strong>reliability or correctness discipline</strong>, not CRUD. One shared
+        TypeScript&nbsp;·&nbsp;Fastify&nbsp;·&nbsp;Postgres spine. Every guarantee tested, every
+        edge adversarially reviewed.
+      </p>
+      <div class="hero-cta reveal" data-reveal data-reveal-delay="3">
+        <a class="btn btn-primary" href="#services">Explore the services
+          <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h9M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="https://github.com/Anish-Guntreddi/backend-portfolio" target="_blank" rel="noopener">View source</a>
+      </div>
+    </div>
+
+    <!-- terminal -->
+    <div class="terminal reveal" data-reveal data-reveal-delay="2" role="img" aria-label="Terminal showing the services booting, a health check, and the test suite passing.">
+      <div class="terminal-bar">
+        <span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>
+        <span class="terminal-title">zsh — backend-portfolio</span>
+      </div>
+      <div class="terminal-body" id="terminal-body"></div>
+    </div>
+  </div>
+  <a class="scroll-hint" href="#stats" aria-label="Scroll down"><span></span></a>
+</section>
+
+<!-- ── stats ───────────────────────────────────────────────────── -->
+<section class="stats" id="stats">
+  <div class="stat" data-reveal>
+    <div class="stat-num"><span class="count" data-to="3">0</span></div>
+    <div class="stat-label">services</div>
+  </div>
+  <div class="stat" data-reveal data-reveal-delay="1">
+    <div class="stat-num"><span class="count" data-to="7">0</span></div>
+    <div class="stat-label">packages</div>
+  </div>
+  <div class="stat" data-reveal data-reveal-delay="2">
+    <div class="stat-num"><span class="count" data-to="161">0</span></div>
+    <div class="stat-label">tests passing</div>
+  </div>
+  <div class="stat" data-reveal data-reveal-delay="3">
+    <div class="stat-num"><span class="count" data-to="100">0</span><span class="stat-suffix">%</span></div>
+    <div class="stat-label">gates green</div>
+  </div>
+</section>
+
+<!-- ── services ────────────────────────────────────────────────── -->
+<section class="services" id="services">
+  <div class="section-head" data-reveal>
+    <p class="eyebrow">// the services</p>
+    <h2>Three disciplines, one spine.</h2>
+  </div>
+
+  <!-- AuditTrail -->
+  <article class="svc" id="audittrail">
+    <div class="svc-info" data-reveal>
+      <div class="svc-index">01</div>
+      <div class="svc-head">
+        <h3>AuditTrail</h3>
+        <span class="svc-tag">tamper-evidence</span>
+      </div>
+      <p class="svc-line">An append-only, <strong>tamper-evident</strong> audit log. Every record is
+        hash-chained to its predecessor like a blockchain — rewrite history and verification breaks.</p>
+      <ul class="svc-points">
+        <li><span class="bullet"></span>Each row stores <code>sha256(prev_hash ‖ canonical content)</code>; <code>/verify</code> walks the chain and pinpoints the first break.</li>
+        <li><span class="bullet"></span>Concurrent appends serialized by a <code>pg_advisory_xact_lock</code> — the chain can't fork, while reads stay fully concurrent.</li>
+        <li><span class="bullet"></span>Append-only enforced three ways: no mutate paths, revoked grants on a least-privilege role, and a trigger blocking <code>UPDATE/DELETE/TRUNCATE</code>.</li>
+      </ul>
+      <div class="svc-meta">
+        <span><b>29</b> tests</span><span><b>:8080</b></span><span>Postgres · advisory locks</span>
+      </div>
+      <div class="svc-links">
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/tree/main/packages/audittrail" target="_blank" rel="noopener">README ↗</a>
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/blob/main/packages/audittrail/openapi.json" target="_blank" rel="noopener">OpenAPI ↗</a>
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/blob/main/packages/audittrail/src/domain/hashChain.ts" target="_blank" rel="noopener">hashChain.ts ↗</a>
+      </div>
+    </div>
+    <div class="svc-visual" data-reveal data-reveal-delay="1">
+      <!-- hash chain diagram -->
+      <svg class="diagram diagram-chain" viewBox="0 0 420 300" role="img" aria-label="A hash chain: genesis links to three blocks; a tampered block is caught by verify.">
+        <defs>
+          <linearGradient id="blkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1E293B"/><stop offset="1" stop-color="#162032"/>
+          </linearGradient>
+        </defs>
+        <g class="chain-links" stroke="#334155" stroke-width="2" fill="none">
+          <path d="M70 70 H120" class="flow-path"/>
+          <path d="M190 70 H240" class="flow-path"/>
+          <path d="M310 70 V150 H 130 V 230 H 180" class="flow-path"/>
+        </g>
+        <!-- genesis -->
+        <g class="blk" transform="translate(20,45)">
+          <rect width="50" height="50" rx="8" fill="url(#blkGrad)" stroke="#334155"/>
+          <text x="25" y="29" class="blk-t">GEN</text><text x="25" y="42" class="blk-h">0x000</text>
+        </g>
+        <!-- block 1 -->
+        <g class="blk" transform="translate(120,45)">
+          <rect width="70" height="50" rx="8" fill="url(#blkGrad)" stroke="#334155"/>
+          <text x="35" y="22" class="blk-t">event #1</text>
+          <text x="35" y="37" class="blk-h">prev→hash</text>
+        </g>
+        <!-- block 2 -->
+        <g class="blk" transform="translate(240,45)">
+          <rect width="70" height="50" rx="8" fill="url(#blkGrad)" stroke="#334155"/>
+          <text x="35" y="22" class="blk-t">event #2</text>
+          <text x="35" y="37" class="blk-h">prev→hash</text>
+        </g>
+        <!-- tampered block -->
+        <g class="blk blk-bad" transform="translate(180,205)">
+          <rect width="70" height="50" rx="8" fill="#2A1620" stroke="#F43F5E"/>
+          <text x="35" y="22" class="blk-t" fill="#FDA4AF">event #3</text>
+          <text x="35" y="37" class="blk-h" fill="#FB7185">tampered</text>
+          <line x1="6" y1="6" x2="64" y2="44" stroke="#F43F5E" stroke-width="1.6"/>
+        </g>
+        <!-- verify badge -->
+        <g transform="translate(280,200)">
+          <rect width="120" height="64" rx="10" fill="#0B1220" stroke="#1E293B"/>
+          <text x="14" y="24" class="vrf-cmd">GET /verify</text>
+          <text x="14" y="44" class="vrf-bad">✗ break at id 3</text>
+          <text x="14" y="57" class="vrf-sub">content_tampered</text>
+        </g>
+        <circle class="flow-dot fd1" r="4" fill="#34D399"/>
+        <circle class="flow-dot fd2" r="4" fill="#34D399"/>
+      </svg>
+      <pre class="snippet"><span class="c-cmt"># append, then prove integrity</span>
+<span class="c-kw">curl</span> -XPOST :8080/events -d '{"actor":"svc","action":"login"}'
+<span class="c-kw">curl</span> :8080/verify
+<span class="c-out">→ { "valid": true, "checkedCount": 1, "headHash": "9f3c…" }</span></pre>
+    </div>
+  </article>
+
+  <!-- FlagForge -->
+  <article class="svc svc-rev" id="flagforge">
+    <div class="svc-info" data-reveal>
+      <div class="svc-index">02</div>
+      <div class="svc-head">
+        <h3>FlagForge</h3>
+        <span class="svc-tag">deterministic rollout</span>
+      </div>
+      <p class="svc-line">Feature flags with <strong>deterministic percentage rollout</strong>, targeting,
+        and a client SDK that evaluates locally using the <em>same</em> engine as the server.</p>
+      <ul class="svc-points">
+        <li><span class="bullet"></span>Bucketing is <code>hash(salt ‖ key) → [0,1)</code>, depending only on the key — never the weights — so rollouts are <strong>monotonic</strong>: 10%→20% only ever <em>adds</em> users.</li>
+        <li><span class="bullet"></span>The pure eval engine is shared verbatim by server <strong>and</strong> SDK — identical decisions, zero drift. χ² uniformity verified over 100k keys.</li>
+        <li><span class="bullet"></span>Version-guarded Redis cache (a Lua version <em>floor</em>) means a stale reader can never serve an archived flag as live; Redis down → transparent Postgres fallback.</li>
+      </ul>
+      <div class="svc-meta">
+        <span><b>74</b> tests</span><span><b>:8081</b></span><span>Postgres · Redis · SDK</span>
+      </div>
+      <div class="svc-links">
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/tree/main/packages/flagforge" target="_blank" rel="noopener">README ↗</a>
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/blob/main/packages/flagforge-core/src/bucket.ts" target="_blank" rel="noopener">bucket.ts ↗</a>
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/blob/main/packages/flagforge/src/cache.ts" target="_blank" rel="noopener">cache.ts ↗</a>
+      </div>
+    </div>
+    <div class="svc-visual" data-reveal data-reveal-delay="1">
+      <!-- rollout diagram -->
+      <svg class="diagram diagram-rollout" viewBox="0 0 420 300" role="img" aria-label="A user key is hashed into a bucket on a 0 to 1 line; the rollout band determines the served variation.">
+        <text x="20" y="34" class="rl-lbl">hash(salt ‖ userKey)</text>
+        <g transform="translate(20,48)">
+          <rect width="290" height="30" rx="6" fill="#0B1220" stroke="#1E293B"/>
+          <text x="145" y="20" class="rl-key">user-42 → 0.173</text>
+        </g>
+        <!-- pointer -->
+        <path d="M62 82 V104" stroke="#34D399" stroke-width="2" class="rl-pointer"/>
+        <!-- rollout bar -->
+        <text x="20" y="124" class="rl-lbl">rollout band — <tspan fill="#34D399">on 20%</tspan> / off 80%</text>
+        <g transform="translate(20,134)">
+          <rect width="380" height="44" rx="8" fill="#162032" stroke="#1E293B"/>
+          <rect class="rl-on" width="76" height="44" rx="8" fill="#16331f" stroke="#22C55E"/>
+          <rect x="76" width="304" height="44" fill="#13202f"/>
+          <text x="38" y="27" class="rl-seg on">on</text>
+          <text x="228" y="27" class="rl-seg">off</text>
+          <line class="rl-mark" x1="66" y1="-6" x2="66" y2="50" stroke="#34D399" stroke-width="2"/>
+          <circle class="rl-ball" cx="66" cy="22" r="6" fill="#34D399"/>
+        </g>
+        <text x="20" y="200" class="rl-lbl">→ served</text>
+        <g transform="translate(78,186)">
+          <rect width="120" height="22" rx="11" fill="#16331f" stroke="#22C55E"/>
+          <text x="60" y="15" class="rl-out">variation: on</text>
+        </g>
+        <!-- cache strip -->
+        <g transform="translate(20,232)">
+          <rect width="380" height="48" rx="8" fill="#0B1220" stroke="#1E293B"/>
+          <text x="16" y="20" class="cache-t">redis cache · version floor</text>
+          <text x="16" y="38" class="cache-s">SET only if version ≥ floor → archived flag never served live</text>
+          <circle cx="360" cy="24" r="6" fill="#34D399" class="cache-dot"/>
+        </g>
+      </svg>
+      <pre class="snippet"><span class="c-cmt"># evaluate a flag for a user</span>
+<span class="c-kw">curl</span> -XPOST :8081/evaluate -d '{"flagKey":"checkout","context":{"key":"user-42"}}'
+<span class="c-out">→ { "value": true, "variation": "on",
+    "reason": { "kind": "FALLTHROUGH", "inRollout": true } }</span></pre>
+    </div>
+  </article>
+
+  <!-- NotifyCore -->
+  <article class="svc" id="notifycore">
+    <div class="svc-info" data-reveal>
+      <div class="svc-index">03</div>
+      <div class="svc-head">
+        <h3>NotifyCore</h3>
+        <span class="svc-tag">durable delivery</span>
+      </div>
+      <p class="svc-line">Notification delivery on a BullMQ worker — <strong>at-least-once</strong> with a
+        durable dead-letter queue, idempotency, retries with backoff, and timezone-aware quiet hours.</p>
+      <ul class="svc-points">
+        <li><span class="bullet"></span><strong>Atomic claim</strong> (<code>UPDATE … WHERE status claimable RETURNING</code>) means two workers can never both deliver; a lease reclaims a crashed worker's work.</li>
+        <li><span class="bullet"></span>The dead-letter transition is <strong>DB-authoritative and written before control returns</strong> — not a fire-and-forget event — so it survives crashes. A reconciler re-enqueues anything orphaned.</li>
+        <li><span class="bullet"></span>Idempotent enqueue (<code>ON CONFLICT</code>) + a stable <code>deliveryId</code> handed to providers for downstream dedup.</li>
+      </ul>
+      <div class="svc-meta">
+        <span><b>58</b> tests</span><span><b>:8082</b></span><span>BullMQ · worker · DLQ</span>
+      </div>
+      <div class="svc-links">
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/tree/main/packages/notifycore" target="_blank" rel="noopener">README ↗</a>
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/blob/main/packages/notifycore/src/worker/processor.ts" target="_blank" rel="noopener">processor.ts ↗</a>
+        <a href="https://github.com/Anish-Guntreddi/backend-portfolio/blob/main/packages/notifycore-core/src/quietHours.ts" target="_blank" rel="noopener">quietHours.ts ↗</a>
+      </div>
+    </div>
+    <div class="svc-visual" data-reveal data-reveal-delay="1">
+      <!-- queue/worker/dlq diagram -->
+      <svg class="diagram diagram-queue" viewBox="0 0 420 300" role="img" aria-label="A request is enqueued, claimed by a worker, delivered to a provider; on failure it retries then dead-letters and can be replayed.">
+        <!-- enqueue -->
+        <g transform="translate(14,40)">
+          <rect width="78" height="40" rx="8" fill="#162032" stroke="#1E293B"/>
+          <text x="39" y="18" class="q-t">enqueue</text><text x="39" y="32" class="q-s">idempotent</text>
+        </g>
+        <!-- queue -->
+        <g transform="translate(120,36)">
+          <rect width="70" height="48" rx="8" fill="#0B1220" stroke="#334155"/>
+          <text x="35" y="20" class="q-t">queue</text>
+          <rect x="10" y="28" width="10" height="12" rx="2" fill="#334155"/>
+          <rect x="24" y="28" width="10" height="12" rx="2" fill="#334155"/>
+          <rect x="38" y="28" width="10" height="12" rx="2" fill="#22C55E"/>
+        </g>
+        <!-- worker -->
+        <g transform="translate(218,32)">
+          <rect width="86" height="56" rx="8" fill="#162032" stroke="#22C55E"/>
+          <text x="43" y="20" class="q-t" fill="#86efac">worker</text>
+          <text x="43" y="35" class="q-s">atomic claim</text>
+          <text x="43" y="48" class="q-s">UPDATE…RETURNING</text>
+        </g>
+        <!-- provider -->
+        <g transform="translate(330,40)">
+          <rect width="76" height="40" rx="8" fill="#162032" stroke="#1E293B"/>
+          <text x="38" y="18" class="q-t">provider</text><text x="38" y="32" class="q-s">deliveryId</text>
+        </g>
+        <g class="q-paths" stroke="#334155" stroke-width="2" fill="none">
+          <path d="M92 60 H120" class="flow-path"/>
+          <path d="M190 60 H218" class="flow-path"/>
+          <path d="M304 60 H330" class="flow-path"/>
+        </g>
+        <!-- retry loop -->
+        <path d="M261 88 C261 120 200 120 200 96" stroke="#475569" stroke-width="2" fill="none" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+        <text x="150" y="124" class="q-s" fill="#94A3B8">retry · backoff ×N</text>
+        <!-- dlq -->
+        <g transform="translate(218,156)">
+          <rect width="86" height="44" rx="8" fill="#2A1620" stroke="#F43F5E"/>
+          <text x="43" y="20" class="q-t" fill="#FDA4AF">DLQ</text>
+          <text x="43" y="34" class="q-s" fill="#FB7185">status=dead</text>
+        </g>
+        <path d="M261 88 V156" stroke="#7f1d2e" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+        <text x="270" y="120" class="q-s" fill="#FB7185">exhausted</text>
+        <!-- replay -->
+        <g transform="translate(40,164)">
+          <rect width="120" height="36" rx="8" fill="#0B1220" stroke="#334155"/>
+          <text x="60" y="22" class="q-t">POST /dlq/replay</text>
+        </g>
+        <path d="M218 178 H160" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#ar)"/>
+        <path d="M100 200 V232 H262 V204" stroke="#475569" stroke-width="2" fill="none" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+        <text x="120" y="252" class="q-s" fill="#94A3B8">replay → re-enqueued, claimed again</text>
+        <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#475569"/></marker></defs>
+        <circle class="flow-dot qd1" r="4" fill="#34D399"/>
+      </svg>
+      <pre class="snippet"><span class="c-cmt"># enqueue once — a retry sends the same key, never twice</span>
+<span class="c-kw">curl</span> -XPOST :8082/notifications -d '{"idempotencyKey":"k1", … }'
+<span class="c-out">→ 201 { "status": "queued", "created": true }   <span class="c-cmt"># dup → 200, created:false</span></span>
+<span class="c-out">→ worker → { "status": "sent" }</span></pre>
+    </div>
+  </article>
+</section>
+
+<!-- ── architecture ────────────────────────────────────────────── -->
+<section class="architecture" id="architecture">
+  <div class="section-head" data-reveal>
+    <p class="eyebrow">// one platform, not three apps</p>
+    <h2>The shared spine &amp; the pure-core pattern.</h2>
+  </div>
+  <div class="arch-grid">
+    <div class="arch-card span-2" data-reveal>
+      <h3><span class="mono-chip">packages/shared</span> the spine</h3>
+      <p>Every service is assembled from the same primitives. <code>buildBaseServer()</code> wires Fastify
+        with the Zod type provider so <strong>one schema drives validation, response serialization, and
+        OpenAPI at once</strong> — plus problem+json errors, constant-time API-key auth, and a health route.
+        <code>createPool()</code> and a fail-fast <code>loadEnv()</code> round it out.</p>
+      <div class="arch-flow" aria-hidden="true">
+        <span class="flow-node spine">shared spine</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-node">AuditTrail</span>
+        <span class="flow-node">FlagForge</span>
+        <span class="flow-node">NotifyCore</span>
+      </div>
+    </div>
+    <div class="arch-card" data-reveal data-reveal-delay="1">
+      <h3>Pure cores</h3>
+      <p>The hardest logic is factored into <strong>I/O-free packages</strong>, exhaustively unit-tested —
+        and shared verbatim where it matters. <code>flagforge-core</code>'s engine runs in the server
+        <em>and</em> the SDK; <code>notifycore-core</code>'s quiet-hours math is testable without a clock.</p>
+    </div>
+    <div class="arch-card" data-reveal>
+      <h3>Real-dependency tests</h3>
+      <p>Integration suites run against <strong>real Postgres and Redis</strong> in Docker — not mocks —
+        including a live BullMQ worker draining a queue and a killed-Redis degradation check.</p>
+    </div>
+    <div class="arch-card span-2" data-reveal data-reveal-delay="1">
+      <h3>Honest threat models</h3>
+      <p>Each service documents guarantees <em>and their boundaries</em>: AuditTrail's external anchoring vs.
+        KMS signing, FlagForge's eventually-consistent bulk-eval snapshot, NotifyCore's at-least-once delivery
+        and the transactional-outbox hardening left as future work. Reliability claims you can actually trust.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── stack ───────────────────────────────────────────────────── -->
+<section class="stack" id="stack">
+  <div class="section-head" data-reveal>
+    <p class="eyebrow">// the toolchain</p>
+    <h2>Deliberate, boring-in-the-best-way choices.</h2>
+  </div>
+  <div class="stack-groups" data-reveal data-reveal-delay="1">
+    <div class="stack-group"><h4>Language</h4><div class="chips"><span class="mono-chip">TypeScript</span><span class="mono-chip">tsx</span><span class="mono-chip">Node 24</span></div></div>
+    <div class="stack-group"><h4>HTTP · API</h4><div class="chips"><span class="mono-chip">Fastify 5</span><span class="mono-chip">Zod</span><span class="mono-chip">OpenAPI</span><span class="mono-chip">Swagger UI</span></div></div>
+    <div class="stack-group"><h4>Data</h4><div class="chips"><span class="mono-chip">PostgreSQL</span><span class="mono-chip">Drizzle ORM</span><span class="mono-chip">pg</span></div></div>
+    <div class="stack-group"><h4>Cache · Queue</h4><div class="chips"><span class="mono-chip">Redis</span><span class="mono-chip">ioredis</span><span class="mono-chip">BullMQ</span></div></div>
+    <div class="stack-group"><h4>Testing</h4><div class="chips"><span class="mono-chip">Vitest</span><span class="mono-chip">Fastify inject</span></div></div>
+    <div class="stack-group"><h4>Infra</h4><div class="chips"><span class="mono-chip">Docker Compose</span><span class="mono-chip">npm workspaces</span></div></div>
+  </div>
+</section>
+
+<!-- ── process ─────────────────────────────────────────────────── -->
+<section class="process" id="process">
+  <div class="section-head" data-reveal>
+    <p class="eyebrow">// how it was built</p>
+    <h2>Authored, delegated, and adversarially reviewed.</h2>
+  </div>
+  <div class="process-body" data-reveal data-reveal-delay="1">
+    <p>The correctness-critical cores — the hash chain, the bucketing/eval engine, the quiet-hours math —
+      were authored and verified directly. Well-scoped implementation was delegated against those fixed
+      contracts. Then an <strong>independent model ran an adversarial review</strong> of each service
+      before its gates closed.</p>
+    <p>That pass earned its keep: it surfaced a cache-aside race that could serve an archived flag as live,
+      a non-durable dead-letter path, and a mixed-type comparison footgun — each fixed and now pinned by a
+      regression test. The result is the version-guarded cache and the DB-authoritative DLQ you read above.</p>
+    <div class="process-tags">
+      <span class="mono-chip">decompose</span><span class="arrow-chip">→</span>
+      <span class="mono-chip">delegate</span><span class="arrow-chip">→</span>
+      <span class="mono-chip accent-chip">adversarial review</span><span class="arrow-chip">→</span>
+      <span class="mono-chip">fix + regress</span><span class="arrow-chip">→</span>
+      <span class="mono-chip green-chip">gates green</span>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ── footer ──────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="brand brand-foot">
+        <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0F172A" stroke="#1E293B"/><path d="M9 11l4 5-4 5" fill="none" stroke="#34D399" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 21h7" stroke="#34D399" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="brand-text">backend<span class="brand-dim">-portfolio</span></span>
+      </div>
+      <p class="footer-note">Three infrastructure-grade services on one TypeScript spine.<br>Built by Anish Guntreddi · MIT licensed.</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/Anish-Guntreddi/backend-portfolio" target="_blank" rel="noopener">Repository ↗</a>
+      <a href="#audittrail">AuditTrail</a>
+      <a href="#flagforge">FlagForge</a>
+      <a href="#notifycore">NotifyCore</a>
+    </div>
+  </div>
+  <div class="footer-bar"><span>$ all systems operational</span><span>161 tests · 0 failing</span></div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

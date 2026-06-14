@@ -11,3 +11,6 @@ coverage/
 # Local tooling / working state (not part of the portfolio)
 .remember/
 .claude/settings.local.json
+.playwright-mcp/
+/hero.png
+/fullpage.png
