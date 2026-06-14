@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: audittrail
+      POSTGRES_PASSWORD: audittrail
+      POSTGRES_DB: audittrail
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U audittrail -d audittrail"]
+      interval: 2s
+      timeout: 3s
+      retries: 25
+    volumes:
+      - audittrail_pg:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: ../../
+      dockerfile: packages/audittrail/Dockerfile
+    environment:
+      DATABASE_URL: postgres://audittrail:audittrail@postgres:5432/audittrail
+      API_KEY: dev-audittrail-key
+      PORT: 8080
+      HOST: 0.0.0.0
+      LOG_LEVEL: info
+      ALERT_EVAL_INTERVAL_SECONDS: 30
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  audittrail_pg:

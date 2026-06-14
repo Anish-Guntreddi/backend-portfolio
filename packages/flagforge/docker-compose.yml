@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: flagforge
+      POSTGRES_PASSWORD: flagforge
+      POSTGRES_DB: flagforge
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flagforge -d flagforge"]
+      interval: 2s
+      timeout: 3s
+      retries: 25
+    volumes:
+      - flagforge_pg:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 25
+
+  app:
+    build:
+      context: ../../
+      dockerfile: packages/flagforge/Dockerfile
+    environment:
+      DATABASE_URL: postgres://flagforge:flagforge@postgres:5432/flagforge
+      REDIS_URL: redis://redis:6379
+      API_KEY: dev-flagforge-key
+      PORT: 8081
+      HOST: 0.0.0.0
+      LOG_LEVEL: info
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  flagforge_pg:

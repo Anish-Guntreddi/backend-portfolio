@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuditTrail Admin</title>
+  <link rel="stylesheet" href="/admin/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="logo">AuditTrail <span class="logo-sub">Admin</span></span>
+      <nav class="header-nav">
+        <a href="/docs" target="_blank" rel="noopener">Swagger UI</a>
+        <a href="/openapi.json" target="_blank" rel="noopener">openapi.json</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="api-key-bar">
+    <label for="api-key-input">API Key</label>
+    <input
+      id="api-key-input"
+      type="password"
+      placeholder="Enter x-api-key…"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="api-key-save">Save</button>
+    <span id="api-key-status" class="api-key-status" aria-live="polite"></span>
+  </div>
+
+  <div id="auth-banner" class="banner banner-error" hidden>
+    <strong>401 Unauthorized</strong> — the API key was rejected. Please update it above.
+  </div>
+
+  <div id="no-key-banner" class="banner banner-info">
+    Enter your API key above to begin.
+  </div>
+
+  <main>
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="ingest">Ingest</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" data-tab="search">Search</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" data-tab="verify">Verify</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" data-tab="alerts">Alerts</button>
+    </nav>
+
+    <!-- ── Ingest ── -->
+    <section id="tab-ingest" class="tab-panel" role="tabpanel">
+      <h2>Append Event</h2>
+      <form id="ingest-form" class="card form-grid" novalidate>
+        <div class="field">
+          <label for="ing-actor">Actor <span class="req">*</span></label>
+          <input id="ing-actor" name="actor" required placeholder="user:alice" />
+        </div>
+        <div class="field">
+          <label for="ing-action">Action <span class="req">*</span></label>
+          <input id="ing-action" name="action" required placeholder="document.delete" />
+        </div>
+        <div class="field">
+          <label for="ing-resource">Resource <span class="req">*</span></label>
+          <input id="ing-resource" name="resource" required placeholder="doc:42" />
+        </div>
+        <div class="field">
+          <label for="ing-occurred-at">Occurred At</label>
+          <input id="ing-occurred-at" name="occurredAt" type="datetime-local" />
+        </div>
+        <div class="field">
+          <label for="ing-ip">IP Address</label>
+          <input id="ing-ip" name="ip" placeholder="203.0.113.5" />
+        </div>
+        <div class="field field-full">
+          <label for="ing-metadata">Metadata (JSON)</label>
+          <textarea id="ing-metadata" name="metadata" rows="4" placeholder='{"key":"value"}'></textarea>
+        </div>
+        <div class="field field-full form-actions">
+          <button type="submit" class="btn-primary">Append Event</button>
+          <span id="ingest-error" class="inline-error" role="alert" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <div id="ingest-result" hidden>
+        <h3>Created Event</h3>
+        <div class="card">
+          <pre id="ingest-result-pre" class="json-view"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Search ── -->
+    <section id="tab-search" class="tab-panel" role="tabpanel" hidden>
+      <h2>Search Events</h2>
+      <form id="search-form" class="card form-grid" novalidate>
+        <div class="field">
+          <label for="srch-actor">Actor</label>
+          <input id="srch-actor" name="actor" placeholder="user:alice" />
+        </div>
+        <div class="field">
+          <label for="srch-action">Action</label>
+          <input id="srch-action" name="action" placeholder="document.delete" />
+        </div>
+        <div class="field">
+          <label for="srch-resource">Resource</label>
+          <input id="srch-resource" name="resource" placeholder="doc:42" />
+        </div>
+        <div class="field">
+          <label for="srch-from">From</label>
+          <input id="srch-from" name="from" type="datetime-local" />
+        </div>
+        <div class="field">
+          <label for="srch-to">To</label>
+          <input id="srch-to" name="to" type="datetime-local" />
+        </div>
+        <div class="field">
+          <label for="srch-limit">Limit</label>
+          <input id="srch-limit" name="limit" type="number" min="1" max="500" value="25" />
+        </div>
+        <div class="field field-full form-actions">
+          <button type="submit" class="btn-primary">Search</button>
+          <span id="search-error" class="inline-error" role="alert" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <div id="search-results" hidden>
+        <h3>Results</h3>
+        <div class="table-wrapper">
+          <table id="events-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Occurred At</th>
+                <th>Actor</th>
+                <th>Action</th>
+                <th>Resource</th>
+                <th>IP</th>
+                <th>Hash</th>
+              </tr>
+            </thead>
+            <tbody id="events-tbody"></tbody>
+          </table>
+        </div>
+        <div class="load-more-row">
+          <button id="load-more-btn" class="btn-secondary" hidden>Load more</button>
+          <span id="search-count" class="muted-text"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Verify ── -->
+    <section id="tab-verify" class="tab-panel" role="tabpanel" hidden>
+      <h2>Verify Chain Integrity</h2>
+      <div class="card verify-card">
+        <p class="muted-text">Checks every event hash against its predecessor to detect any tampering.</p>
+        <button id="verify-btn" class="btn-primary">Verify Chain</button>
+        <span id="verify-error" class="inline-error" role="alert" aria-live="polite"></span>
+        <div id="verify-result" hidden></div>
+      </div>
+    </section>
+
+    <!-- ── Alerts ── -->
+    <section id="tab-alerts" class="tab-panel" role="tabpanel" hidden>
+      <h2>Alert Rules</h2>
+      <form id="rule-form" class="card form-grid" novalidate>
+        <div class="field">
+          <label for="rule-name">Name <span class="req">*</span></label>
+          <input id="rule-name" name="name" required placeholder="High delete rate" />
+        </div>
+        <div class="field">
+          <label for="rule-action">Match Action <span class="req">*</span></label>
+          <input id="rule-action" name="matchAction" required placeholder="document.delete" />
+        </div>
+        <div class="field">
+          <label for="rule-threshold">Threshold <span class="req">*</span></label>
+          <input id="rule-threshold" name="threshold" type="number" min="1" required placeholder="10" />
+        </div>
+        <div class="field">
+          <label for="rule-window">Window (seconds) <span class="req">*</span></label>
+          <input id="rule-window" name="windowSeconds" type="number" min="1" required placeholder="60" />
+        </div>
+        <div class="field field-checkbox">
+          <label><input id="rule-group-actor" name="groupByActor" type="checkbox" /> Group by actor</label>
+        </div>
+        <div class="field field-checkbox">
+          <label><input id="rule-enabled" name="enabled" type="checkbox" checked /> Enabled</label>
+        </div>
+        <div class="field field-full form-actions">
+          <button type="submit" class="btn-primary">Create Rule</button>
+          <span id="rule-error" class="inline-error" role="alert" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <div id="rules-list" class="mt-section">
+        <h3>
+          Existing Rules
+          <button id="refresh-rules-btn" class="btn-ghost btn-sm">Refresh</button>
+        </h3>
+        <div class="table-wrapper">
+          <table id="rules-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Match Action</th>
+                <th>Threshold</th>
+                <th>Window (s)</th>
+                <th>Group by Actor</th>
+                <th>Enabled</th>
+              </tr>
+            </thead>
+            <tbody id="rules-tbody"></tbody>
+          </table>
+        </div>
+        <span id="rules-error" class="inline-error" role="alert" aria-live="polite"></span>
+      </div>
+
+      <div class="mt-section">
+        <h3>
+          Triggered Alerts
+          <button id="refresh-alerts-btn" class="btn-ghost btn-sm">Refresh</button>
+        </h3>
+        <div class="inline-field">
+          <label for="alerts-limit">Limit</label>
+          <input id="alerts-limit" type="number" min="1" max="200" value="50" class="limit-input" />
+        </div>
+        <div class="table-wrapper">
+          <table id="triggered-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Rule ID</th>
+                <th>Actor</th>
+                <th>Matched</th>
+                <th>Window Start</th>
+                <th>Window End</th>
+                <th>Triggered At</th>
+              </tr>
+            </thead>
+            <tbody id="triggered-tbody"></tbody>
+          </table>
+        </div>
+        <span id="alerts-error" class="inline-error" role="alert" aria-live="polite"></span>
+      </div>
+    </section>
+  </main>
+
+  <script src="/admin/app.js"></script>
+</body>
+</html>

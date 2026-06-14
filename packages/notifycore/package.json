@@ -1,0 +1,33 @@
+{
+  "name": "@portfolio/notifycore",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "worker": "tsx src/worker-main.ts",
+    "migrate": "tsx src/db/migrate.ts",
+    "seed": "tsx src/seed.ts",
+    "db:generate": "drizzle-kit generate",
+    "openapi": "tsx scripts/dump-openapi.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/static": "^9.1.3",
+    "@portfolio/notifycore-core": "*",
+    "@portfolio/shared": "*",
+    "bullmq": "^5.51.1",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.2.1",
+    "fastify-type-provider-zod": "^4.0.2",
+    "ioredis": "^5.6.1",
+    "pg": "^8.13.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.31.10"
+  }
+}

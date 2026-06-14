@@ -1,0 +1,24 @@
+{
+  "name": "backend-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Infrastructure-grade backend portfolio: AuditTrail, FlagForge, NotifyCore.",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.8"
+  }
+}

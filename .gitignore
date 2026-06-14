@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+*.log
+.env
+.env.local
+.DS_Store
+*.tsbuildinfo
+.vitest/
+
+# Local tooling / working state (not part of the portfolio)
+.remember/
+.claude/settings.local.json

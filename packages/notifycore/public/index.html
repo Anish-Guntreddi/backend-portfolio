@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NotifyCore Admin</title>
+  <link rel="stylesheet" href="/admin/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="logo">NotifyCore <span class="logo-sub">Admin</span></span>
+      <nav class="header-nav">
+        <a href="/docs" target="_blank" rel="noopener">Swagger UI</a>
+        <a href="/openapi.json" target="_blank" rel="noopener">openapi.json</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="api-key-bar">
+    <label for="api-key-input">API Key</label>
+    <input
+      id="api-key-input"
+      type="password"
+      placeholder="Enter x-api-key…"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="api-key-save">Save</button>
+    <span id="api-key-status" class="api-key-status" aria-live="polite"></span>
+  </div>
+
+  <div id="auth-banner" class="banner banner-error" hidden>
+    <strong>401 Unauthorized</strong> — the API key was rejected. Please update it above.
+  </div>
+
+  <div id="no-key-banner" class="banner banner-info">
+    Enter your API key above to begin.
+  </div>
+
+  <main>
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="notifications">Notifications</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" data-tab="dlq">DLQ</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" data-tab="send">Send Test</button>
+    </nav>
+
+    <!-- ── Notifications ── -->
+    <section id="tab-notifications" class="tab-panel" role="tabpanel">
+      <h2>
+        Recent Notifications
+        <button id="refresh-notifications-btn" class="btn-ghost btn-sm" style="margin-left:.75rem">Refresh</button>
+      </h2>
+
+      <div class="table-wrapper">
+        <table id="notifications-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Recipient</th>
+              <th>Channel</th>
+              <th>Status</th>
+              <th>Attempts</th>
+              <th>Updated</th>
+            </tr>
+          </thead>
+          <tbody id="notifications-tbody"></tbody>
+        </table>
+      </div>
+      <span id="notifications-error" class="inline-error" role="alert" aria-live="polite"></span>
+    </section>
+
+    <!-- ── DLQ ── -->
+    <section id="tab-dlq" class="tab-panel" role="tabpanel" hidden>
+      <h2>
+        Dead Letter Queue
+        <button id="refresh-dlq-btn" class="btn-ghost btn-sm" style="margin-left:.75rem">Refresh</button>
+      </h2>
+
+      <div class="table-wrapper">
+        <table id="dlq-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Recipient</th>
+              <th>Channel</th>
+              <th>Template</th>
+              <th>Last Error</th>
+              <th>Attempts</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="dlq-tbody"></tbody>
+        </table>
+      </div>
+      <span id="dlq-error" class="inline-error" role="alert" aria-live="polite"></span>
+    </section>
+
+    <!-- ── Send Test ── -->
+    <section id="tab-send" class="tab-panel" role="tabpanel" hidden>
+      <h2>Send Test Notification</h2>
+      <form id="send-form" class="card form-grid" novalidate>
+        <div class="field">
+          <label for="send-idempotency-key">Idempotency Key <span class="req">*</span></label>
+          <input id="send-idempotency-key" name="idempotencyKey" required placeholder="test-1234" />
+        </div>
+        <div class="field">
+          <label for="send-recipient">Recipient <span class="req">*</span></label>
+          <input id="send-recipient" name="recipient" required placeholder="user@example.com" />
+        </div>
+        <div class="field">
+          <label for="send-channel">Channel <span class="req">*</span></label>
+          <select id="send-channel" name="channel">
+            <option value="email">email</option>
+            <option value="sms">sms</option>
+            <option value="push">push</option>
+            <option value="webhook">webhook</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="send-template-key">Template Key <span class="req">*</span></label>
+          <input id="send-template-key" name="templateKey" required placeholder="welcome-email" />
+        </div>
+        <div class="field field-full">
+          <label for="send-data">Data (JSON)</label>
+          <textarea id="send-data" name="data" rows="4" placeholder='{"name":"Alice","email":"alice@example.com"}'></textarea>
+        </div>
+        <div class="field field-full form-actions">
+          <button type="submit" class="btn-primary">Enqueue</button>
+          <span id="send-error" class="inline-error" role="alert" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <div id="send-result" hidden>
+        <h3>Result</h3>
+        <div class="card">
+          <pre id="send-result-pre" class="json-view"></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/admin/app.js"></script>
+</body>
+</html>

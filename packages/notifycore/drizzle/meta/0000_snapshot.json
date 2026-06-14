@@ -1,0 +1,133 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.templates": {
+      "name": "templates",
+      "schema": "",
+      "columns": {
+        "id": { "name": "id", "type": "bigserial", "primaryKey": true, "notNull": true },
+        "key": { "name": "key", "type": "text", "primaryKey": false, "notNull": true },
+        "channel": { "name": "channel", "type": "text", "primaryKey": false, "notNull": true },
+        "subject": { "name": "subject", "type": "text", "primaryKey": false, "notNull": false },
+        "body": { "name": "body", "type": "text", "primaryKey": false, "notNull": true },
+        "created_at": { "name": "created_at", "type": "timestamp with time zone", "primaryKey": false, "notNull": true, "default": "now()" },
+        "updated_at": { "name": "updated_at", "type": "timestamp with time zone", "primaryKey": false, "notNull": true, "default": "now()" }
+      },
+      "indexes": {
+        "templates_key_idx": {
+          "name": "templates_key_idx",
+          "columns": [{ "expression": "key", "isExpression": false, "asc": true, "nulls": "last" }],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "templates_key_unique": {
+          "name": "templates_key_unique",
+          "nullsNotDistinct": false,
+          "columns": ["key"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.notifications": {
+      "name": "notifications",
+      "schema": "",
+      "columns": {
+        "id": { "name": "id", "type": "bigserial", "primaryKey": true, "notNull": true },
+        "idempotency_key": { "name": "idempotency_key", "type": "text", "primaryKey": false, "notNull": true },
+        "recipient": { "name": "recipient", "type": "text", "primaryKey": false, "notNull": true },
+        "channel": { "name": "channel", "type": "text", "primaryKey": false, "notNull": true },
+        "template_key": { "name": "template_key", "type": "text", "primaryKey": false, "notNull": true },
+        "data": { "name": "data", "type": "jsonb", "primaryKey": false, "notNull": true, "default": "'{}'::jsonb" },
+        "status": { "name": "status", "type": "text", "primaryKey": false, "notNull": true, "default": "'queued'" },
+        "attempts": { "name": "attempts", "type": "integer", "primaryKey": false, "notNull": true, "default": 0 },
+        "max_attempts": { "name": "max_attempts", "type": "integer", "primaryKey": false, "notNull": true, "default": 5 },
+        "last_error": { "name": "last_error", "type": "text", "primaryKey": false, "notNull": false },
+        "scheduled_for": { "name": "scheduled_for", "type": "timestamp with time zone", "primaryKey": false, "notNull": false },
+        "sent_at": { "name": "sent_at", "type": "timestamp with time zone", "primaryKey": false, "notNull": false },
+        "created_at": { "name": "created_at", "type": "timestamp with time zone", "primaryKey": false, "notNull": true, "default": "now()" },
+        "updated_at": { "name": "updated_at", "type": "timestamp with time zone", "primaryKey": false, "notNull": true, "default": "now()" }
+      },
+      "indexes": {
+        "notifications_status_idx": {
+          "name": "notifications_status_idx",
+          "columns": [{ "expression": "status", "isExpression": false, "asc": true, "nulls": "last" }],
+          "isUnique": false, "concurrently": false, "method": "btree", "with": {}
+        },
+        "notifications_recipient_idx": {
+          "name": "notifications_recipient_idx",
+          "columns": [{ "expression": "recipient", "isExpression": false, "asc": true, "nulls": "last" }],
+          "isUnique": false, "concurrently": false, "method": "btree", "with": {}
+        },
+        "notifications_idempotency_key_idx": {
+          "name": "notifications_idempotency_key_idx",
+          "columns": [{ "expression": "idempotency_key", "isExpression": false, "asc": true, "nulls": "last" }],
+          "isUnique": false, "concurrently": false, "method": "btree", "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "notifications_idempotency_key_unique": {
+          "name": "notifications_idempotency_key_unique",
+          "nullsNotDistinct": false,
+          "columns": ["idempotency_key"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.preferences": {
+      "name": "preferences",
+      "schema": "",
+      "columns": {
+        "id": { "name": "id", "type": "bigserial", "primaryKey": true, "notNull": true },
+        "recipient": { "name": "recipient", "type": "text", "primaryKey": false, "notNull": true },
+        "channel": { "name": "channel", "type": "text", "primaryKey": false, "notNull": true },
+        "opted_out": { "name": "opted_out", "type": "boolean", "primaryKey": false, "notNull": true, "default": false },
+        "quiet_start": { "name": "quiet_start", "type": "text", "primaryKey": false, "notNull": false },
+        "quiet_end": { "name": "quiet_end", "type": "text", "primaryKey": false, "notNull": false },
+        "timezone": { "name": "timezone", "type": "text", "primaryKey": false, "notNull": false },
+        "created_at": { "name": "created_at", "type": "timestamp with time zone", "primaryKey": false, "notNull": true, "default": "now()" },
+        "updated_at": { "name": "updated_at", "type": "timestamp with time zone", "primaryKey": false, "notNull": true, "default": "now()" }
+      },
+      "indexes": {
+        "preferences_recipient_idx": {
+          "name": "preferences_recipient_idx",
+          "columns": [{ "expression": "recipient", "isExpression": false, "asc": true, "nulls": "last" }],
+          "isUnique": false, "concurrently": false, "method": "btree", "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "preferences_recipient_channel_unique": {
+          "name": "preferences_recipient_channel_unique",
+          "nullsNotDistinct": false,
+          "columns": ["recipient", "channel"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": { "columns": {}, "schemas": {}, "tables": {} }
+}

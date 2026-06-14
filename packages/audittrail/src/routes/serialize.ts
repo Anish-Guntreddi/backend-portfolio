@@ -1,0 +1,85 @@
+import type { AlertRow, AlertRuleRow, EventRow } from '../db/schema.ts';
+
+export function toEventDTO(row: EventRow) {
+  return {
+    id: row.id,
+    actor: row.actor,
+    action: row.action,
+    resource: row.resource,
+    occurredAt: row.occurredAt.toISOString(),
+    recordedAt: row.recordedAt.toISOString(),
+    ip: row.ip,
+    metadata: row.metadata,
+    prevHash: row.prevHash,
+    hash: row.hash,
+  };
+}
+
+export function toRuleDTO(row: AlertRuleRow) {
+  return {
+    id: row.id,
+    name: row.name,
+    enabled: row.enabled,
+    matchAction: row.matchAction,
+    groupByActor: row.groupByActor,
+    threshold: row.threshold,
+    windowSeconds: row.windowSeconds,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+export function toAlertDTO(row: AlertRow) {
+  return {
+    id: row.id,
+    ruleId: row.ruleId,
+    actor: row.actor,
+    matchedCount: row.matchedCount,
+    windowStart: row.windowStart.toISOString(),
+    windowEnd: row.windowEnd.toISOString(),
+    triggeredAt: row.triggeredAt.toISOString(),
+  };
+}
+
+const CSV_COLUMNS = [
+  'id',
+  'actor',
+  'action',
+  'resource',
+  'occurred_at',
+  'recorded_at',
+  'ip',
+  'metadata',
+  'prev_hash',
+  'hash',
+] as const;
+
+/** RFC-4180 field escaping: quote fields containing comma/quote/newline, doubling inner quotes. */
+function csvField(value: string): string {
+  if (/[",\r\n]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+export function toCSV(rows: EventRow[]): string {
+  const lines = [CSV_COLUMNS.join(',')];
+  for (const r of rows) {
+    lines.push(
+      [
+        String(r.id),
+        r.actor,
+        r.action,
+        r.resource,
+        r.occurredAt.toISOString(),
+        r.recordedAt.toISOString(),
+        r.ip ?? '',
+        JSON.stringify(r.metadata),
+        r.prevHash,
+        r.hash,
+      ]
+        .map(csvField)
+        .join(','),
+    );
+  }
+  return lines.join('\r\n');
+}

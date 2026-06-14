@@ -1,0 +1,3042 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FlagForge",
+    "version": "0.1.0",
+    "description": "Feature flags with deterministic percentage rollouts, targeting, and a typed evaluation engine."
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/flags": {
+      "post": {
+        "summary": "Create a flag",
+        "tags": [
+          "flags"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "boolean",
+                      "string",
+                      "number",
+                      "json"
+                    ]
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "variations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "value": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "enum": [
+                                "null"
+                              ],
+                              "nullable": true
+                            },
+                            {
+                              "type": "array",
+                              "items": {}
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": {}
+                            }
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1
+                  },
+                  "offVariation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "fallthrough": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "fixed"
+                            ]
+                          },
+                          "variation": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "variation"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "bucketBy": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "weights": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "variation": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "weight": {
+                                  "type": "number",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "variation",
+                                "weight"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "minItems": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "weights"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "targets": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "variation": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "variation",
+                        "values"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "rules": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "clauses": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "attribute": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "op": {
+                                "type": "string",
+                                "enum": [
+                                  "in",
+                                  "contains",
+                                  "startsWith",
+                                  "endsWith",
+                                  "greaterThan",
+                                  "greaterThanOrEqual",
+                                  "lessThan",
+                                  "lessThanOrEqual"
+                                ]
+                              },
+                              "values": {
+                                "type": "array",
+                                "items": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "boolean"
+                                    },
+                                    {
+                                      "enum": [
+                                        "null"
+                                      ],
+                                      "nullable": true
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {}
+                                    },
+                                    {
+                                      "type": "object",
+                                      "additionalProperties": {}
+                                    }
+                                  ]
+                                },
+                                "minItems": 1
+                              },
+                              "negate": {
+                                "type": "boolean",
+                                "default": false
+                              }
+                            },
+                            "required": [
+                              "attribute",
+                              "op",
+                              "values"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "default": []
+                        },
+                        "serve": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "fixed"
+                                  ]
+                                },
+                                "variation": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "variation"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "rollout"
+                                  ]
+                                },
+                                "bucketBy": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "weights": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "variation": {
+                                        "type": "string",
+                                        "minLength": 1
+                                      },
+                                      "weight": {
+                                        "type": "number",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "variation",
+                                      "weight"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "minItems": 1
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "weights"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "serve"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "salt": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "key",
+                  "type",
+                  "enabled",
+                  "variations",
+                  "offVariation",
+                  "fallthrough",
+                  "salt"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "boolean",
+                        "string",
+                        "number",
+                        "json"
+                      ]
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "variations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "enum": [
+                                  "null"
+                                ],
+                                "nullable": true
+                              },
+                              {
+                                "type": "array",
+                                "items": {}
+                              },
+                              {
+                                "type": "object",
+                                "additionalProperties": {}
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1
+                    },
+                    "offVariation": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "fallthrough": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "fixed"
+                              ]
+                            },
+                            "variation": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "variation"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "rollout"
+                              ]
+                            },
+                            "bucketBy": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "weights": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "variation": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "weight": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  }
+                                },
+                                "required": [
+                                  "variation",
+                                  "weight"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "minItems": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "weights"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "targets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "variation": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "values": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "variation",
+                          "values"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "clauses": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "attribute": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "op": {
+                                  "type": "string",
+                                  "enum": [
+                                    "in",
+                                    "contains",
+                                    "startsWith",
+                                    "endsWith",
+                                    "greaterThan",
+                                    "greaterThanOrEqual",
+                                    "lessThan",
+                                    "lessThanOrEqual"
+                                  ]
+                                },
+                                "values": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "enum": [
+                                          "null"
+                                        ],
+                                        "nullable": true
+                                      },
+                                      {
+                                        "type": "array",
+                                        "items": {}
+                                      },
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": {}
+                                      }
+                                    ]
+                                  },
+                                  "minItems": 1
+                                },
+                                "negate": {
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              },
+                              "required": [
+                                "attribute",
+                                "op",
+                                "values"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "default": []
+                          },
+                          "serve": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "fixed"
+                                    ]
+                                  },
+                                  "variation": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "variation"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "rollout"
+                                    ]
+                                  },
+                                  "bucketBy": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "weights": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "variation": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0
+                                        }
+                                      },
+                                      "required": [
+                                        "variation",
+                                        "weight"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "minItems": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "weights"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "serve"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "salt": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "version": {
+                      "type": "integer"
+                    },
+                    "archived": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "type",
+                    "enabled",
+                    "variations",
+                    "offVariation",
+                    "fallthrough",
+                    "salt",
+                    "version",
+                    "archived",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List flags",
+        "tags": [
+          "flags"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": false
+            },
+            "in": "query",
+            "name": "includeArchived",
+            "required": false
+          }
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "boolean",
+                          "string",
+                          "number",
+                          "json"
+                        ]
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "variations": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "value": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "enum": [
+                                    "null"
+                                  ],
+                                  "nullable": true
+                                },
+                                {
+                                  "type": "array",
+                                  "items": {}
+                                },
+                                {
+                                  "type": "object",
+                                  "additionalProperties": {}
+                                }
+                              ]
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "minItems": 1
+                      },
+                      "offVariation": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "fallthrough": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "fixed"
+                                ]
+                              },
+                              "variation": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "variation"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "rollout"
+                                ]
+                              },
+                              "bucketBy": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "weights": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "variation": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "weight": {
+                                      "type": "number",
+                                      "minimum": 0
+                                    }
+                                  },
+                                  "required": [
+                                    "variation",
+                                    "weight"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "minItems": 1
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "weights"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      "targets": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "variation": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "values": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "variation",
+                            "values"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "default": []
+                      },
+                      "rules": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "clauses": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "attribute": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "op": {
+                                    "type": "string",
+                                    "enum": [
+                                      "in",
+                                      "contains",
+                                      "startsWith",
+                                      "endsWith",
+                                      "greaterThan",
+                                      "greaterThanOrEqual",
+                                      "lessThan",
+                                      "lessThanOrEqual"
+                                    ]
+                                  },
+                                  "values": {
+                                    "type": "array",
+                                    "items": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "number"
+                                        },
+                                        {
+                                          "type": "boolean"
+                                        },
+                                        {
+                                          "enum": [
+                                            "null"
+                                          ],
+                                          "nullable": true
+                                        },
+                                        {
+                                          "type": "array",
+                                          "items": {}
+                                        },
+                                        {
+                                          "type": "object",
+                                          "additionalProperties": {}
+                                        }
+                                      ]
+                                    },
+                                    "minItems": 1
+                                  },
+                                  "negate": {
+                                    "type": "boolean",
+                                    "default": false
+                                  }
+                                },
+                                "required": [
+                                  "attribute",
+                                  "op",
+                                  "values"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "default": []
+                            },
+                            "serve": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "fixed"
+                                      ]
+                                    },
+                                    "variation": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "kind",
+                                    "variation"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "rollout"
+                                      ]
+                                    },
+                                    "bucketBy": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "weights": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "variation": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          },
+                                          "weight": {
+                                            "type": "number",
+                                            "minimum": 0
+                                          }
+                                        },
+                                        "required": [
+                                          "variation",
+                                          "weight"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "minItems": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "kind",
+                                    "weights"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "serve"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "default": []
+                      },
+                      "salt": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "version": {
+                        "type": "integer"
+                      },
+                      "archived": {
+                        "type": "boolean"
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      },
+                      "updatedAt": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "key",
+                      "type",
+                      "enabled",
+                      "variations",
+                      "offVariation",
+                      "fallthrough",
+                      "salt",
+                      "version",
+                      "archived",
+                      "createdAt",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flags/{key}": {
+      "get": {
+        "summary": "Get a flag by key",
+        "tags": [
+          "flags"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "boolean",
+                        "string",
+                        "number",
+                        "json"
+                      ]
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "variations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "enum": [
+                                  "null"
+                                ],
+                                "nullable": true
+                              },
+                              {
+                                "type": "array",
+                                "items": {}
+                              },
+                              {
+                                "type": "object",
+                                "additionalProperties": {}
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1
+                    },
+                    "offVariation": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "fallthrough": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "fixed"
+                              ]
+                            },
+                            "variation": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "variation"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "rollout"
+                              ]
+                            },
+                            "bucketBy": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "weights": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "variation": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "weight": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  }
+                                },
+                                "required": [
+                                  "variation",
+                                  "weight"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "minItems": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "weights"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "targets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "variation": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "values": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "variation",
+                          "values"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "clauses": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "attribute": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "op": {
+                                  "type": "string",
+                                  "enum": [
+                                    "in",
+                                    "contains",
+                                    "startsWith",
+                                    "endsWith",
+                                    "greaterThan",
+                                    "greaterThanOrEqual",
+                                    "lessThan",
+                                    "lessThanOrEqual"
+                                  ]
+                                },
+                                "values": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "enum": [
+                                          "null"
+                                        ],
+                                        "nullable": true
+                                      },
+                                      {
+                                        "type": "array",
+                                        "items": {}
+                                      },
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": {}
+                                      }
+                                    ]
+                                  },
+                                  "minItems": 1
+                                },
+                                "negate": {
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              },
+                              "required": [
+                                "attribute",
+                                "op",
+                                "values"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "default": []
+                          },
+                          "serve": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "fixed"
+                                    ]
+                                  },
+                                  "variation": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "variation"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "rollout"
+                                    ]
+                                  },
+                                  "bucketBy": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "weights": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "variation": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0
+                                        }
+                                      },
+                                      "required": [
+                                        "variation",
+                                        "weight"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "minItems": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "weights"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "serve"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "salt": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "version": {
+                      "type": "integer"
+                    },
+                    "archived": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "type",
+                    "enabled",
+                    "variations",
+                    "offVariation",
+                    "fallthrough",
+                    "salt",
+                    "version",
+                    "archived",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Replace a flag definition",
+        "tags": [
+          "flags"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "boolean",
+                      "string",
+                      "number",
+                      "json"
+                    ]
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "variations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "value": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "enum": [
+                                "null"
+                              ],
+                              "nullable": true
+                            },
+                            {
+                              "type": "array",
+                              "items": {}
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": {}
+                            }
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1
+                  },
+                  "offVariation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "fallthrough": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "fixed"
+                            ]
+                          },
+                          "variation": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "variation"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "bucketBy": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "weights": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "variation": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "weight": {
+                                  "type": "number",
+                                  "minimum": 0
+                                }
+                              },
+                              "required": [
+                                "variation",
+                                "weight"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "minItems": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "weights"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "targets": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "variation": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "variation",
+                        "values"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "rules": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "clauses": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "attribute": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "op": {
+                                "type": "string",
+                                "enum": [
+                                  "in",
+                                  "contains",
+                                  "startsWith",
+                                  "endsWith",
+                                  "greaterThan",
+                                  "greaterThanOrEqual",
+                                  "lessThan",
+                                  "lessThanOrEqual"
+                                ]
+                              },
+                              "values": {
+                                "type": "array",
+                                "items": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "number"
+                                    },
+                                    {
+                                      "type": "boolean"
+                                    },
+                                    {
+                                      "enum": [
+                                        "null"
+                                      ],
+                                      "nullable": true
+                                    },
+                                    {
+                                      "type": "array",
+                                      "items": {}
+                                    },
+                                    {
+                                      "type": "object",
+                                      "additionalProperties": {}
+                                    }
+                                  ]
+                                },
+                                "minItems": 1
+                              },
+                              "negate": {
+                                "type": "boolean",
+                                "default": false
+                              }
+                            },
+                            "required": [
+                              "attribute",
+                              "op",
+                              "values"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "default": []
+                        },
+                        "serve": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "fixed"
+                                  ]
+                                },
+                                "variation": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "variation"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "rollout"
+                                  ]
+                                },
+                                "bucketBy": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "weights": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "variation": {
+                                        "type": "string",
+                                        "minLength": 1
+                                      },
+                                      "weight": {
+                                        "type": "number",
+                                        "minimum": 0
+                                      }
+                                    },
+                                    "required": [
+                                      "variation",
+                                      "weight"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "minItems": 1
+                                }
+                              },
+                              "required": [
+                                "kind",
+                                "weights"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "serve"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "salt": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "key",
+                  "type",
+                  "enabled",
+                  "variations",
+                  "offVariation",
+                  "fallthrough",
+                  "salt"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "boolean",
+                        "string",
+                        "number",
+                        "json"
+                      ]
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "variations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "enum": [
+                                  "null"
+                                ],
+                                "nullable": true
+                              },
+                              {
+                                "type": "array",
+                                "items": {}
+                              },
+                              {
+                                "type": "object",
+                                "additionalProperties": {}
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1
+                    },
+                    "offVariation": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "fallthrough": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "fixed"
+                              ]
+                            },
+                            "variation": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "variation"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "rollout"
+                              ]
+                            },
+                            "bucketBy": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "weights": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "variation": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "weight": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  }
+                                },
+                                "required": [
+                                  "variation",
+                                  "weight"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "minItems": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "weights"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "targets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "variation": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "values": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "variation",
+                          "values"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "clauses": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "attribute": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "op": {
+                                  "type": "string",
+                                  "enum": [
+                                    "in",
+                                    "contains",
+                                    "startsWith",
+                                    "endsWith",
+                                    "greaterThan",
+                                    "greaterThanOrEqual",
+                                    "lessThan",
+                                    "lessThanOrEqual"
+                                  ]
+                                },
+                                "values": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "enum": [
+                                          "null"
+                                        ],
+                                        "nullable": true
+                                      },
+                                      {
+                                        "type": "array",
+                                        "items": {}
+                                      },
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": {}
+                                      }
+                                    ]
+                                  },
+                                  "minItems": 1
+                                },
+                                "negate": {
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              },
+                              "required": [
+                                "attribute",
+                                "op",
+                                "values"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "default": []
+                          },
+                          "serve": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "fixed"
+                                    ]
+                                  },
+                                  "variation": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "variation"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "rollout"
+                                    ]
+                                  },
+                                  "bucketBy": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "weights": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "variation": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0
+                                        }
+                                      },
+                                      "required": [
+                                        "variation",
+                                        "weight"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "minItems": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "weights"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "serve"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "salt": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "version": {
+                      "type": "integer"
+                    },
+                    "archived": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "type",
+                    "enabled",
+                    "variations",
+                    "offVariation",
+                    "fallthrough",
+                    "salt",
+                    "version",
+                    "archived",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Toggle a flag enabled/disabled",
+        "tags": [
+          "flags"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "enabled"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "boolean",
+                        "string",
+                        "number",
+                        "json"
+                      ]
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "variations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "enum": [
+                                  "null"
+                                ],
+                                "nullable": true
+                              },
+                              {
+                                "type": "array",
+                                "items": {}
+                              },
+                              {
+                                "type": "object",
+                                "additionalProperties": {}
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "minItems": 1
+                    },
+                    "offVariation": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "fallthrough": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "fixed"
+                              ]
+                            },
+                            "variation": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "variation"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "rollout"
+                              ]
+                            },
+                            "bucketBy": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "weights": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "variation": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "weight": {
+                                    "type": "number",
+                                    "minimum": 0
+                                  }
+                                },
+                                "required": [
+                                  "variation",
+                                  "weight"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "minItems": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "weights"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "targets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "variation": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "values": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "variation",
+                          "values"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "clauses": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "attribute": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "op": {
+                                  "type": "string",
+                                  "enum": [
+                                    "in",
+                                    "contains",
+                                    "startsWith",
+                                    "endsWith",
+                                    "greaterThan",
+                                    "greaterThanOrEqual",
+                                    "lessThan",
+                                    "lessThanOrEqual"
+                                  ]
+                                },
+                                "values": {
+                                  "type": "array",
+                                  "items": {
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "enum": [
+                                          "null"
+                                        ],
+                                        "nullable": true
+                                      },
+                                      {
+                                        "type": "array",
+                                        "items": {}
+                                      },
+                                      {
+                                        "type": "object",
+                                        "additionalProperties": {}
+                                      }
+                                    ]
+                                  },
+                                  "minItems": 1
+                                },
+                                "negate": {
+                                  "type": "boolean",
+                                  "default": false
+                                }
+                              },
+                              "required": [
+                                "attribute",
+                                "op",
+                                "values"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "default": []
+                          },
+                          "serve": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "fixed"
+                                    ]
+                                  },
+                                  "variation": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "variation"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "rollout"
+                                    ]
+                                  },
+                                  "bucketBy": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "weights": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "variation": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "weight": {
+                                          "type": "number",
+                                          "minimum": 0
+                                        }
+                                      },
+                                      "required": [
+                                        "variation",
+                                        "weight"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "minItems": 1
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "weights"
+                                ],
+                                "additionalProperties": false
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "serve"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "salt": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "version": {
+                      "type": "integer"
+                    },
+                    "archived": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "type",
+                    "enabled",
+                    "variations",
+                    "offVariation",
+                    "fallthrough",
+                    "salt",
+                    "version",
+                    "archived",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Archive a flag (soft delete)",
+        "tags": [
+          "flags"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flags/{key}/audit": {
+      "get": {
+        "summary": "Get audit log for a flag",
+        "tags": [
+          "flags"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "key",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "flagKey": {
+                        "type": "string"
+                      },
+                      "action": {
+                        "type": "string"
+                      },
+                      "actor": {
+                        "type": "string"
+                      },
+                      "before": {
+                        "nullable": true
+                      },
+                      "after": {
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "flagKey",
+                      "action",
+                      "actor",
+                      "createdAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/evaluate": {
+      "post": {
+        "summary": "Evaluate a single flag for a context",
+        "tags": [
+          "evaluation"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "flagKey": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "context": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "enum": [
+                                "null"
+                              ],
+                              "nullable": true
+                            },
+                            {
+                              "type": "array",
+                              "items": {}
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": {}
+                            }
+                          ]
+                        },
+                        "default": {}
+                      }
+                    },
+                    "required": [
+                      "key"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "defaultValue": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "enum": [
+                          "null"
+                        ],
+                        "nullable": true
+                      },
+                      {
+                        "type": "array",
+                        "items": {}
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": {}
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "flagKey",
+                  "context"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "flagKey": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "enum": [
+                            "null"
+                          ],
+                          "nullable": true
+                        },
+                        {
+                          "type": "array",
+                          "items": {}
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": {}
+                        }
+                      ],
+                      "nullable": true
+                    },
+                    "variation": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reason": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "additionalProperties": true
+                    },
+                    "flagVersion": {
+                      "type": "number",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "flagKey",
+                    "value",
+                    "variation",
+                    "reason",
+                    "flagVersion"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/evaluate/all": {
+      "post": {
+        "summary": "Evaluate all non-archived flags for a context (SDK bootstrap)",
+        "tags": [
+          "evaluation"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "context": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "attributes": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "boolean"
+                            },
+                            {
+                              "enum": [
+                                "null"
+                              ],
+                              "nullable": true
+                            },
+                            {
+                              "type": "array",
+                              "items": {}
+                            },
+                            {
+                              "type": "object",
+                              "additionalProperties": {}
+                            }
+                          ]
+                        },
+                        "default": {}
+                      }
+                    },
+                    "required": [
+                      "key"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "context"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "flags": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "enum": [
+                                  "null"
+                                ],
+                                "nullable": true
+                              },
+                              {
+                                "type": "array",
+                                "items": {}
+                              },
+                              {
+                                "type": "object",
+                                "additionalProperties": {}
+                              }
+                            ],
+                            "nullable": true
+                          },
+                          "variation": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "reason": {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "additionalProperties": true
+                          },
+                          "flagVersion": {
+                            "type": "number",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "value",
+                          "variation",
+                          "reason",
+                          "flagVersion"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "flags"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

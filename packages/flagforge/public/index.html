@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlagForge Admin</title>
+  <link rel="stylesheet" href="/admin/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="logo">FlagForge <span class="logo-sub">Admin</span></span>
+      <nav class="header-nav">
+        <a href="/docs" target="_blank" rel="noopener">Swagger UI</a>
+        <a href="/openapi.json" target="_blank" rel="noopener">openapi.json</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="api-key-bar">
+    <label for="api-key-input">API Key</label>
+    <input
+      id="api-key-input"
+      type="password"
+      placeholder="Enter x-api-key…"
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="api-key-save">Save</button>
+    <span id="api-key-status" class="api-key-status" aria-live="polite"></span>
+  </div>
+
+  <div id="auth-banner" class="banner banner-error" hidden>
+    <strong>401 Unauthorized</strong> — the API key was rejected. Please update it above.
+  </div>
+
+  <div id="no-key-banner" class="banner banner-info">
+    Enter your API key above to begin.
+  </div>
+
+  <main>
+    <nav class="tab-nav" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="flags">Flags</button>
+      <button class="tab-btn"        role="tab" aria-selected="false" data-tab="evaluate">Evaluate</button>
+    </nav>
+
+    <!-- ── Flags ── -->
+    <section id="tab-flags" class="tab-panel" role="tabpanel">
+      <h2>
+        Feature Flags
+        <button id="refresh-flags-btn" class="btn-ghost btn-sm" style="margin-left:.75rem">Refresh</button>
+      </h2>
+
+      <div class="table-wrapper">
+        <table id="flags-table">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Type</th>
+              <th>Enabled</th>
+              <th>Version</th>
+              <th>Archived</th>
+              <th>Updated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="flags-tbody"></tbody>
+        </table>
+      </div>
+      <div class="inline-field" style="margin-top:.5rem">
+        <label>
+          <input type="checkbox" id="show-archived" />
+          Show archived
+        </label>
+      </div>
+      <span id="flags-error" class="inline-error" role="alert" aria-live="polite"></span>
+    </section>
+
+    <!-- ── Evaluate ── -->
+    <section id="tab-evaluate" class="tab-panel" role="tabpanel" hidden>
+      <h2>Evaluate Flag</h2>
+      <form id="eval-form" class="card form-grid" novalidate>
+        <div class="field">
+          <label for="eval-key">Flag Key <span class="req">*</span></label>
+          <input id="eval-key" name="flagKey" required placeholder="new-checkout-flow" />
+        </div>
+        <div class="field">
+          <label for="eval-ctx-key">Context Key <span class="req">*</span></label>
+          <input id="eval-ctx-key" name="contextKey" required placeholder="user-abc123" />
+        </div>
+        <div class="field field-full">
+          <label for="eval-attrs">Context Attributes (JSON)</label>
+          <textarea id="eval-attrs" name="attributes" rows="4" placeholder='{"team":"engineering","plan":"pro"}'></textarea>
+        </div>
+        <div class="field">
+          <label for="eval-default">Default Value (JSON, optional)</label>
+          <input id="eval-default" name="defaultValue" placeholder="false" />
+        </div>
+        <div class="field field-full form-actions">
+          <button type="submit" class="btn-primary">Evaluate</button>
+          <span id="eval-error" class="inline-error" role="alert" aria-live="polite"></span>
+        </div>
+      </form>
+
+      <div id="eval-result" hidden>
+        <h3>Result</h3>
+        <div class="card">
+          <pre id="eval-result-pre" class="json-view"></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/admin/app.js"></script>
+</body>
+</html>
