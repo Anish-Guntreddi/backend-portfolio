@@ -12,5 +12,7 @@ coverage/
 .remember/
 .claude/settings.local.json
 .playwright-mcp/
-/hero.png
-/fullpage.png
+# root-level screenshot artifacts from local visual QA
+/*.png
+/*.jpeg
+/*.jpg
